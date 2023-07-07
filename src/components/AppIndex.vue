@@ -16,7 +16,7 @@
             <div class="ptc-item-text">{{ e.name }}</div>
           </div>
         </div>
-        <div class="p-tool-list" v-show="showSubMenu">
+        <div class="p-tool-list">
           <div
             class="p-tool-item"
             v-for="(e, i) of subMenu"
