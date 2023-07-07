@@ -108,113 +108,6 @@ export default {
       subMenu: [],
       showSubMenu: false,
       menuList: []
-      // menuList: [
-      //   {
-      //     name: "情绪",
-      //     img: new URL("./img/qingxu.svg", import.meta.url).href,
-      //     activeImg: new URL("./img/qingxu_a.png", import.meta.url).href,
-      //     subMenu: [
-      //       {
-      //         name: "快乐",
-      //         img: new URL("./img/qx_kuaile.png", import.meta.url).href,
-      //         className: "p-tool-item-img-kuaile",
-      //         desc: "快乐是人类精神上的一种愉悦，是一种心灵上的满足，是由内而外感受到的一种非常舒服的感觉。比喻人的一种开心、高兴的状态。快乐是无法定义的、是模糊的、是要用心感受的",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "恐惧",
-      //         img: new URL("./img/qx_kongju.png", import.meta.url).href,
-      //         className: "p-tool-item-img-kongju",
-      //         desc: "内容过长可滚动",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "期待",
-      //         img: new URL("./img/qx_qidai.png", import.meta.url).href,
-      //         className: "p-tool-item-img-qidai",
-      //         desc: "描述三",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "愤怒",
-      //         img: new URL("./img/qx_fennu.png", import.meta.url).href,
-      //         className: "p-tool-item-img-fennu",
-      //         desc: "描述一",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "惊喜",
-      //         img: new URL("./img/qx_jingxi.png", import.meta.url).href,
-      //         className: "p-tool-item-img-jingxi",
-      //         desc: "描述二",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "悲伤",
-      //         img: new URL("./img/qx_beishang.png", import.meta.url).href,
-      //         className: "p-tool-item-img-beishang",
-      //         desc: "描述三",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "信任",
-      //         img: new URL("./img/qx_xinren.png", import.meta.url).href,
-      //         className: "p-tool-item-img-xinren",
-      //         desc: "描述二",
-      //         isSelected: false,
-      //       },
-      //       {
-      //         name: "厌恶",
-      //         img: new URL("./img/qx_yanwu.png", import.meta.url).href,
-      //         className: "p-tool-item-img-yanwu",
-      //         desc: "描述三",
-      //         isSelected: false,
-      //       },
-      //     ],
-      //   },
-      //   {
-      //     name: "光线",
-      //     img: new URL("./img/guangxian.png", import.meta.url).href,
-      //     activeImg: new URL("./img/guangxian_a.svg", import.meta.url).href,
-      //     subMenu: [
-      //       {
-      //         name: "光线一",
-      //         img: new URL("./img/qx_kuaile.png", import.meta.url).href,
-      //         className: "p-tool-item-img-kuaile",
-      //         desc: "内容一",
-      //         isSelected: false,
-      //       },
-      //     ],
-      //   },
-      //   {
-      //     name: "媒介",
-      //     img: new URL("./img/meijie.png", import.meta.url).href,
-      //     activeImg: new URL("./img/meijie_a.svg", import.meta.url).href,
-      //     subMenu: [
-      //       {
-      //         name: "媒介一",
-      //         img: new URL("./img/qx_kuaile.png", import.meta.url).href,
-      //         className: "p-tool-item-img-kuaile",
-      //         desc: "内容一",
-      //         isSelected: false,
-      //       },
-      //     ],
-      //   },
-      //   {
-      //     name: "艺术风格",
-      //     img: new URL("./img/yishu.png", import.meta.url).href,
-      //     activeImg: new URL("./img/yishu_a.svg", import.meta.url).href,
-      //     subMenu: [
-      //       {
-      //         name: "艺术风格一",
-      //         img: new URL("./img/qx_kuaile.png", import.meta.url).href,
-      //         className: "p-tool-item-img-kuaile",
-      //         desc: "内容一",
-      //         isSelected: false,
-      //       },
-      //     ],
-      //   },
-      // ]
     }
   },
   methods: {
@@ -259,34 +152,39 @@ export default {
       });
     },
     draw() {
-      this.showImage = true;
       axios({
         method: 'post',
         url: '/mj/submit/imagine',
         data: {
-          prompt: 'a girl near sea'
+          prompt: this.inputDesc
         }
       }).then((res) => {
-        this.getImage(123);
-        console.log(res)
-      }).catch(err => {
-        console.log(err)
-      });
-      console.log("drawing")
-    },
-    getImage(id) {
-      console.log("getImage")
-      this.showImage = true;
-      const taskId = '5698911826219220';
-      axios.get(`/mj/task/${taskId}/fetch`)
-      .then((res) => {
-        if(res.data.status = "SUCCESS") {
-          console.log(res.data.imageUrl)
-          this.imgUrl = res.data.imageUrl;
+        alert(res.data.description);
+        if(res.data.code == 1) {
+          this.getImage(res.data.result);
         }
       }).catch(err => {
-        console.log(err)
+        console.log(err);
       });
+    },
+    getImage(taskId) {
+      console.log("taskId"+taskId);
+      const interval = setInterval(() => {
+        console.log("开始取图");
+        axios.get(`/mj/task/${taskId}/fetch`)
+          .then((res) => {
+            if (res.data && res.data.progress == "100%") {
+              this.imgUrl = res.data.imageUrl;
+              this.showImage = true;
+            }
+          }).catch(err => {
+            console.log(err)
+          });
+        if (this.showImage) {
+          console.log("达到最大值结束执行");
+          clearInterval(interval);
+        }
+      }, 20000);
     },
     startSpeechRecognition() {
       this.recognition.start();
