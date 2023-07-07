@@ -94,11 +94,12 @@
 
 <script>
 import axios from "axios";
+import config from "../../config.json";
 export default {
   data() {
     return {
       inputDesc: '',
-      baseImgUrl: "src/components/img/",
+      baseImgUrl: "./img/",
       activeNav: 0,
       showImage: false,
       imgUrl: "",
@@ -111,18 +112,6 @@ export default {
     }
   },
   methods: {
-    loadJsonData() {
-      fetch('src/assets/config.json')
-        .then(response => response.json())
-        .then(data => {
-          console.log("data ==>" + data.menulist);
-          this.menuList = data.menulist;
-          console.log(this.menuList[0]);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    },
     handleClickMenu (item, index) {
       this.showSubMenu = !this.showSubMenu;
       this.activeNav = index;
@@ -184,7 +173,7 @@ export default {
           console.log("达到最大值结束执行");
           clearInterval(interval);
         }
-      }, 20000);
+      }, 30000);
     },
     startSpeechRecognition() {
       this.recognition.start();
@@ -200,7 +189,8 @@ export default {
     }
   },
   mounted() {
-    this.loadJsonData();
+    // this.loadJsonData();
+    this.menuList = config.menuList;
     // 创建语音识别实例
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'zh-CN'; // 设置语言为中文
