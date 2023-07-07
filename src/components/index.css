@@ -323,7 +323,7 @@ body .p-contain .p-res-content .p-paper .p-img-content .el-image {
   height: 100%;
   border-radius: 3.9583333333rem;
 }
-body .p-contain .p-res-content .p-paper .p-img-content .el-image :deep(img) {
+body .p-contain .p-res-content .p-paper .p-img-content .el-image .el-image__inner {
   object-fit: contain;
 }
 body .p-contain .p-res-content .p-paper .p-img-content .p-img-group {
