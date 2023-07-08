@@ -70,7 +70,7 @@
           <div class="p-loading-text" @click="getImage()">绘画生成中…</div>
         </div>
       </div>
-      <div v-else class="p-paper p-paper-nobg">
+      <div v-else class="p-paper">
         <div class="p-img-content">
           <!-- 返回结果为1张 -->
           <el-image :src="imgUrl" :preview-src-list="[imgUrl]"></el-image>
