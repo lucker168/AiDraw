@@ -26,7 +26,7 @@
           >
             <div class="p-tool-sub-item">
               <!-- <img class="p-tool-item-img" :class="e.className" :src="e.img" /> -->
-              <img class="p-tool-item-img" :src="baseImgUrl + e.img" style="width: 80%,height:80%;"/>
+              <img class="p-tool-item-img" :src="baseImgUrl + e.img"/>
               <div class="p-tool-item-text">{{ e.name }}</div>
             </div>
           </div>
@@ -46,7 +46,7 @@
                   v-for="(e, i) in selectList"
                   :key="i"
                 >
-                  <div class="p-select-text">{{ e }}</div>
+                  <div class="p-select-text">{{ e.name }}</div>
                   <div class="p-select-icon"></div>
                 </div>
               </div>
@@ -56,7 +56,7 @@
               placeholder="请输入描述词语…" v-model="inputDesc"
             ></textarea>
             <div class="p-voice" @click="startSpeechRecognition()"></div>
-            <div class="p-btn" @click="draw()">
+            <div class="p-btn" @click="draw()" :disabled="drawing">
               <div>开始绘画</div>
             </div>
           </div>
@@ -65,26 +65,15 @@
     </div>
     <div class="p-res-content">
       <div v-if="!showImage" class="p-paper">
-        <div class="p-loading">
+        <div class="p-loading" v-show="drawing">
           <div class="p-loading-img"></div>
-          <div class="p-loading-text" @click="getImage()">绘画生成中…</div>
+          <div class="p-loading-text">{{processStatus}}</div>
         </div>
       </div>
       <div v-else class="p-paper">
         <div class="p-img-content">
           <!-- 返回结果为1张 -->
           <el-image :src="imgUrl" :preview-src-list="[imgUrl]"></el-image>
-          <!-- <img class="ptc-item-img" :src="imgUrl" style="width: 100%;height: 100%;"/> -->
-          <!-- 返回结果为4张 -->
-          <!-- <div class="p-img-group">
-            <el-image
-              v-for="(e, i) in imgGroup"
-              :key="i"
-              :src="e"
-              :preview-src-list="[e]"
-            >
-            </el-image>
-          </div> -->
         </div>
       </div>
     </div>
@@ -95,6 +84,7 @@
 <script>
 import axios from "axios";
 import config from "../../config.json";
+
 export default {
   data() {
     return {
@@ -102,8 +92,10 @@ export default {
       baseImgUrl: "./img/",
       activeNav: 0,
       showImage: false,
+      drawing: false,
+      progress: "0%",
+      downLoadPer: 0,
       imgUrl: "",
-      imgGroup: [],
       description: "",
       selectList: [],
       subMenu: [],
@@ -111,8 +103,19 @@ export default {
       menuList: []
     }
   },
+  computed:{
+      processStatus() {
+        console.log("processStatus=" + this.progress);
+         switch(this.progress) {
+            case "0%":   return "队列等待中。。";
+            case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
+            case "": return "任务超时，请稍后再试。。"
+            default: return "绘画生成中。。" + this.progress;
+         }
+      }
+  },
   methods: {
-    handleClickMenu (item, index) {
+    handleClickMenu(item, index) {
       this.showSubMenu = !this.showSubMenu;
       this.activeNav = index;
       if (item.subMenu && item.subMenu.length > 0) {
@@ -121,7 +124,7 @@ export default {
         this.subMenu = [];
       }
     },
-    handleClickSubMenu (item) {
+    handleClickSubMenu(item) {
       this.selectList = [];
       item.isSelected = !item.isSelected;
       if (item.isSelected) {
@@ -131,49 +134,88 @@ export default {
       }
       this.menuList.forEach((e) => {
         let arr = e.subMenu
-          .filter((ee) => {
-            return ee.isSelected;
-          })
-          .map((eee) => {
-            return e.name + "-" + eee.name;
-          });
+            .filter((ee) => {
+              return ee.isSelected;
+            })
+            .map((eee) => {
+              // return {"name": e.name + "-" + eee.name, "keyword": eee.keyword};
+              return {"name": eee.name, "keyword": eee.keyword};
+            });
         this.selectList = [...this.selectList, ...arr];
       });
     },
     draw() {
+      if (this.drawing) {
+        return;
+      }
+      this.drawing = true;
+      this.showImage = false;
+      this.progress = "0%";
+      let keywords = "";
+      this.selectList.map(e => {
+        keywords = keywords + e.keyword;
+        return keywords;
+      });
+      console.log(this.inputDesc + keywords);
+      const inputPara = this.inputDesc + " " + keywords;
       axios({
         method: 'post',
         url: '/mj/submit/imagine',
         data: {
-          prompt: this.inputDesc
+          prompt: inputPara
         }
       }).then((res) => {
         alert(res.data.description);
-        if(res.data.code == 1) {
+        if (res.data.code == 1) {
           this.getImage(res.data.result);
         }
       }).catch(err => {
         console.log(err);
+        this.drawing = false;
       });
     },
     getImage(taskId) {
-      console.log("taskId"+taskId);
+      console.log("开始取图");
       const interval = setInterval(() => {
-        console.log("开始取图");
         axios.get(`/mj/task/${taskId}/fetch`)
-          .then((res) => {
-            if (res.data && res.data.progress == "100%") {
-              this.imgUrl = res.data.imageUrl;
-              this.showImage = true;
-            }
-          }).catch(err => {
-            console.log(err)
-          });
-        if (this.showImage) {
-          console.log("达到最大值结束执行");
-          clearInterval(interval);
-        }
-      }, 30000);
+            .then((res) => {
+              this.progress = res.data.progress;
+              if (res.data && res.data.progress == "100%") {
+                clearInterval(interval);
+                const imageUrl = res.data.imageUrl;
+                this.downLoadPic(imageUrl,taskId);
+              }
+            }).catch(err => {
+          console.log(err)
+          this.drawing = false;
+        });
+      }, 10000);
+    },
+    downLoadPic(imgUrl,taskId) {
+      this.downLoadPer = 0;
+      if(imgUrl && taskId) {
+        const interval = setInterval(() => {
+          this.downLoadPer = this.downLoadPer + 10;
+          if(this.downLoadPer == 100) {
+            this.downLoadPer = 99;
+            clearInterval(interval);
+          }
+      }, 1000);
+        axios({
+          method: 'get',
+          url: 'http://47.242.36.60:8889/oss/download',
+          params: {"imgURL": imgUrl,"taskId": taskId}
+        }).then((res) => {
+          if (res.data == "success") {
+            this.imgUrl = "https://mydreamypaint.oss-cn-hongkong.aliyuncs.com/" + taskId + ".png";
+            this.showImage = true;
+            this.drawing = false;
+          }
+        }).catch(err => {
+          console.log(err);
+          this.drawing = false;
+        });
+      }
     },
     startSpeechRecognition() {
       this.recognition.start();
@@ -182,21 +224,20 @@ export default {
     handleRecognitionResult(event) {
       const result = event.results[0][0].transcript;
       this.inputDesc = result;
-      console.log('result...'+ result);
+      console.log('result...' + result);
     },
     handleRecognitionError(event) {
       console.error(event.error);
     }
   },
   mounted() {
-    // this.loadJsonData();
     this.menuList = config.menuList;
     // 创建语音识别实例
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'zh-CN'; // 设置语言为中文
     this.recognition.onresult = this.handleRecognitionResult;
     this.recognition.onerror = this.handleRecognitionError;
-    // this.subMenu = this.menuList[this.activeNav].subMenu;
+    this.subMenu = this.menuList[this.activeNav].subMenu;
   }
 }
 </script>
