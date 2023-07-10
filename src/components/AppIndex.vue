@@ -56,7 +56,7 @@
               placeholder="请输入描述词语…" v-model="inputDesc"
             ></textarea>
             <div class="p-voice" @click="startSpeechRecognition()"></div>
-            <div class="p-btn" @click="draw()" :disabled="drawing">
+            <div class="p-btn" :class="drawing?'is-drawing':''" @click="draw()" :disabled="drawing">
               <div>开始绘画</div>
             </div>
           </div>
@@ -74,6 +74,39 @@
         <div class="p-img-content">
           <!-- 返回结果为1张 -->
           <el-image :src="imgUrl" :preview-src-list="[imgUrl]"></el-image>
+        </div>
+      </div>
+
+      <div class="p-color-contain">
+        <div class="p-color-text">背景色</div>
+        <div class="p-color-bg p-white"></div>
+        <div class="p-color-bg p-blue"></div>
+        <div class="p-color-bg p-yellow"></div>
+        <div class="p-color-bg p-palette">
+          <div class="p-palette-box" @click="showColor = !showColor"></div>
+          <div v-show="showColor" class="p-color-selector">
+            <div
+              class="c-color-item"
+              v-for="(e, i) in 12"
+              :key="i"
+              :style="'background:' + color[i]"
+              @click="showColor = !showColor"
+            ></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-choose-contain">
+        <div class="p-choose-groue">
+          <div class="p-c-item is-selected">图片1</div>
+          <div class="p-c-item">图片2</div>
+          <div class="p-c-item">图片3</div>
+          <div class="p-c-item">图片4</div>
+        </div>
+        <div class="p-choose-groue">
+          <div class="p-c-item">V1</div>
+          <div class="p-c-item">V2</div>
+          <div class="p-c-item">V3</div>
+          <div class="p-c-item">V4</div>
         </div>
       </div>
     </div>
@@ -100,7 +133,9 @@ export default {
       selectList: [],
       subMenu: [],
       showSubMenu: false,
-      menuList: []
+      menuList: [],
+      showColor: false,
+      color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"]
     }
   },
   computed:{
