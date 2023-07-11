@@ -22,8 +22,9 @@
             v-for="(e, i) of subMenu"
             :key="i"
             :class="e.isSelected ? 'is-selected' : ''"
-            @click="handleClickSubMenu(e)"
-          >
+            @click="handleClickSubMenu(e)"  
+            @mouseenter="handleMouseover(e)"
+            @mouseleave="handleMouseout()">
             <div class="p-tool-sub-item">
               <!-- <img class="p-tool-item-img" :class="e.className" :src="e.img" /> -->
               <img class="p-tool-item-img" :src="baseImgUrl + e.img"/>
@@ -33,13 +34,14 @@
         </div>
         <div class="p-sub-contain">
           <div class="p-desc-contain">
-            <div class="p-desc">{{ description }}</div>
+            <div class="p-desc">{{ description ? description: defaultDesc}}</div>
           </div>
           <div class="p-action-contain">
             <div class="p-selection">
               <div v-show="selectList.length > 0" class="p-select-title">
                 已选：
               </div>
+              <div class="p-select-text" v-if="selectList.length == 0">{{ defaultSelTxt }}</div>
               <div class="p-select-list">
                 <div
                   class="p-select-item"
@@ -65,7 +67,7 @@
     </div>
     <div class="p-res-content">
       <div v-if="!showImage" class="p-paper">
-        <div class="p-loading" v-show="drawing">
+        <div class="p-loading">
           <div class="p-loading-img"></div>
           <div class="p-loading-text">{{processStatus}}</div>
         </div>
@@ -126,11 +128,14 @@ export default {
       activeNav: 0,
       showImage: false,
       drawing: false,
-      progress: "0%",
+      progress: "initial",
       downLoadPer: 0,
       imgUrl: "",
       description: "",
+      defaultDesc: "",
       selectList: [],
+      defaultSelTxt: "",
+      interval: 10,
       subMenu: [],
       showSubMenu: false,
       menuList: [],
@@ -144,7 +149,8 @@ export default {
          switch(this.progress) {
             case "0%":   return "队列等待中。。";
             case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
-            case "": return "任务超时，请稍后再试。。"
+            case "": return "任务超时，请稍后再试。。";
+            case "initial": return "";
             default: return "绘画生成中。。" + this.progress;
          }
       }
@@ -168,63 +174,70 @@ export default {
         this.description = "";
       }
       this.menuList.forEach((e) => {
-        let arr = e.subMenu
-            .filter((ee) => {
-              return ee.isSelected;
-            })
-            .map((eee) => {
-              // return {"name": e.name + "-" + eee.name, "keyword": eee.keyword};
-              return {"name": eee.name, "keyword": eee.keyword};
-            });
+        let arr = e.subMenu.filter((ee) => { return ee.isSelected;});
         this.selectList = [...this.selectList, ...arr];
       });
     },
+    handleMouseover(e) { this.description = e.desc;},
+    handleMouseout() { this.description = this.defaultDesc },
     draw() {
-      if (this.drawing) {
-        return;
-      }
-      this.drawing = true;
-      this.showImage = false;
-      this.progress = "0%";
-      let keywords = "";
-      this.selectList.map(e => {
-        keywords = keywords + e.keyword;
-        return keywords;
-      });
-      console.log(this.inputDesc + keywords);
-      const inputPara = this.inputDesc + " " + keywords;
-      axios({
-        method: 'post',
-        url: '/mj/submit/imagine',
-        data: {
-          prompt: inputPara
+      try {
+        if (this.drawing) {
+          return;
         }
-      }).then((res) => {
-        alert(res.data.description);
-        if (res.data.code == 1) {
-          this.getImage(res.data.result);
-        }
-      }).catch(err => {
-        console.log(err);
+        this.drawing = true;
+        this.showImage = false;
+        let keywords = "";
+        this.selectList.map(e => {
+          keywords = keywords + e.keyword;
+          return keywords;
+        });
+        let paras = "";
+        this.selectList.map(e => {
+          paras = paras + e.para;
+          return paras;
+        });
+        axios({
+          method: 'post',
+          url: '/mj/submit/imagine',
+          data: {
+            prompt: this.inputDesc,
+            keyWord: keywords,
+            sizePara: paras
+          }
+        }).then((res) => {
+          alert(res.data.description);
+          if (res.data.code == 1) {
+            this.getImage(res.data.result);
+          } else {
+            this.drawing = false;
+          }
+        }).catch(err => {
+          console.log(err);
+          this.drawing = false;
+        });
+      } catch (e) {
         this.drawing = false;
-      });
+      }
     },
     getImage(taskId) {
       console.log("开始取图");
       const interval = setInterval(() => {
         axios.get(`/mj/task/${taskId}/fetch`)
-            .then((res) => {
-              this.progress = res.data.progress;
-              if (res.data && res.data.progress == "100%") {
-                clearInterval(interval);
-                const imageUrl = res.data.imageUrl;
-                this.downLoadPic(imageUrl,taskId);
-              }
-            }).catch(err => {
-          console.log(err)
-          this.drawing = false;
-        });
-      }, 10000);
+          .then((res) => {
+            this.progress = res.data.progress;
+            if (res.data && res.data.progress == "100%") {
+              clearInterval(interval);
+              const imageUrl = res.data.imageUrl;
+              this.downLoadPic(imageUrl, taskId);
+            } else if (res.data.status == "FAILURE") {
+              this.drawing = false;
+            }
+          }).catch(err => {
+            console.log(err)
+            this.drawing = false;
+          });
+      }, config.getInterval);
     },
     downLoadPic(imgUrl,taskId) {
       this.downLoadPer = 0;
@@ -267,6 +280,10 @@ export default {
   },
   mounted() {
     this.menuList = config.menuList;
+    this.defaultDesc = config.defaultDesc;
+    this.defaultSelTxt = config.defaultSelTxt;
+    // this.interval = config.getInterval;
+    // console.log(this.interval);
     // 创建语音识别实例
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'zh-CN'; // 设置语言为中文
