@@ -23,8 +23,7 @@
             :key="i"
             :class="e.isSelected ? 'is-selected' : ''"
             @click="handleClickSubMenu(e)"  
-            @mouseenter="handleMouseover(e)"
-            @mouseleave="handleMouseout()">
+            @mouseenter="handleMouseover(e)">
             <div class="p-tool-sub-item">
               <!-- <img class="p-tool-item-img" :class="e.className" :src="e.img" /> -->
               <img class="p-tool-item-img" :src="baseImgUrl + e.img"/>
@@ -147,7 +146,6 @@ export default {
   },
   computed:{
       processStatus() {
-        console.log("processStatus=" + this.progress);
          switch(this.progress) {
             case "0%":   return "队列等待中。。";
             case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
@@ -282,6 +280,7 @@ export default {
     },
     openImageInNewTab(id) {
       this.uBtn = id;
+      localStorage.setItem("imgUrl",this.imgUrl);
       localStorage.setItem("btnId",id);
       window.open("/new-page", '_blank');
     }
