@@ -89,9 +89,9 @@
           <div v-show="showColor" class="p-color-selector">
             <div
               class="c-color-item"
-              v-for="(e, i) in 12"
+              v-for="(e, i) in color"
               :key="i"
-              :style="'background:' + color[i]"
+              :style="'background:' + e"
               @click="showColor = !showColor"
             ></div>
           </div>
