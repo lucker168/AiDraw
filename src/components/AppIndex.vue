@@ -99,10 +99,10 @@
       </div>
       <div class="p-choose-contain">
         <div class="p-choose-groue">
-          <div class="p-c-item is-selected">图片1</div>
-          <div class="p-c-item">图片2</div>
-          <div class="p-c-item">图片3</div>
-          <div class="p-c-item">图片4</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 1}" @click="openImageInNewTab(1)">U1</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 2}" @click="openImageInNewTab(2)">U2</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 3}" @click="openImageInNewTab(3)">U3</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 4}" @click="openImageInNewTab(4)">U4</div>
         </div>
         <div class="p-choose-groue">
           <div class="p-c-item">V1</div>
@@ -140,7 +140,9 @@ export default {
       showSubMenu: false,
       menuList: [],
       showColor: false,
-      color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"]
+      color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"],
+      taskId: "",
+      uBtn: 1
     }
   },
   computed:{
@@ -187,6 +189,7 @@ export default {
         }
         this.drawing = true;
         this.showImage = false;
+        this.progress = "0%"
         let keywords = "";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
@@ -221,7 +224,7 @@ export default {
       }
     },
     getImage(taskId) {
-      console.log("开始取图");
+      this.taskId = taskId;
       const interval = setInterval(() => {
         axios.get(`/mj/task/${taskId}/fetch`)
           .then((res) => {
@@ -276,6 +279,11 @@ export default {
     },
     handleRecognitionError(event) {
       console.error(event.error);
+    },
+    openImageInNewTab(id) {
+      this.uBtn = id;
+      localStorage.setItem("btnId",id);
+      window.open("/new-page", '_blank');
     }
   },
   mounted() {
