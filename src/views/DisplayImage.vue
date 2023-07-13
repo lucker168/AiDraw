@@ -1,46 +1,53 @@
 <template>
   <div class="image-container">
-    <div ref="myImage" class="inner-image" 
-    :style="{ 'background-Image': `url(${imgUrl})`,'background-position': `${position}`}">
-  </div>
+    <img :src="croppedImage">
   </div>
 </template>
-  
-  <script>
-  export default {
-    data() {
-      return { imgUrl: "", position: ""}
-    },
-    methods: {
-      backgroundPosition(btnId) {
-        switch(btnId) {
-          case "1": return "top left";
-          case "2": return "top right";
-          case "3": return "bottom left";
-          case "4": return "bottom right";
-        }
-      }
-    },
-    mounted() {
-      this.imgUrl = localStorage.getItem("imgUrl");
-      const btnId = localStorage.getItem("btnId");
-      this.position = this.backgroundPosition(btnId);
-    }
-  };
-  </script>
+
 <style>
 .image-container {
   display: flex; /* 使用 Flex 布局 */
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
-.inner-image {
-    width: 1000px; /* 设置内部图像容器宽度 */
-    height: 1000px; /* 设置内部图像容器高度 */
-    /* background-image: url(''); /* 设置背景图路径 */
-    /* background-position: top right;  /* 设置背景图位置 */
-    /* background-size: 400% auto; /* 设置背景图尺寸为四倍宽度 */
-    background-repeat: no-repeat; /* 禁止背景图重复 */
-}
 </style>
-  
+
+<script>
+export default {
+  data() {
+    return {
+      imageSrc: '', // 用于显示原始图片的URL
+      croppedImage: '', // 存储裁剪后的图片URL
+    };
+  },
+  mounted() {
+      const img = new Image();
+      img.src = localStorage.getItem("imgUrl");
+      const btnId = localStorage.getItem("btnId");
+      img.setAttribute("crossOrigin",'Anonymous');
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const originalWidth = img.width;
+        const originalHeight = img.height;
+
+        const croppedWidth = originalWidth / 2; // 裁剪后的宽度
+        const croppedHeight = originalHeight / 2; // 裁剪后的高度
+        canvas.width = croppedWidth;
+        canvas.height = croppedHeight;
+        let sx = 0;    // 源图像的左上角 x 坐标
+        let sy = 0;    // 源图像的左上角 Y 坐标
+
+        switch(btnId) {
+          case "1": {sx = 0; sy = 0}; break;
+          case "2": {sx = croppedWidth; sy = 0}; break;
+          case "3": {sx = 0; sy = croppedHeight}; break;
+          case "4": {sx = croppedWidth; sy = croppedHeight}; break;
+        }
+        ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+        this.croppedImage = canvas.toDataURL();  // 获取裁剪后的图片URL
+        console.log("croppedImage===>  "+this.croppedImage);
+      };
+  }
+};
+</script>

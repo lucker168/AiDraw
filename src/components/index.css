@@ -20,9 +20,9 @@ body textarea:-moz-placeholder {
 body textarea:-ms-input-placeholder {
   color: #AFBDC2;
 }
-body ::-webkit-scrollbar {
+/* body ::-webkit-scrollbar {
   display: none;
-}
+} */
 body .p-contain {
   display: flex;
   width: 100%;

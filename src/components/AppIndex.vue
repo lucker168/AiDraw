@@ -65,11 +65,14 @@
       </div>
     </div>
     <div class="p-res-content">
-      <div v-if="!showImage" class="p-paper">
-        <div class="p-loading">
-          <div class="p-loading-img"></div>
-          <div class="p-loading-text">{{processStatus}}</div>
-        </div>
+      <div v-if="true" class="p-paper">
+          <div class="p-loading">
+            <div class="p-loading-img"></div>
+            <div class="p-loading-text">{{ processStatus }}</div>
+            <!-- <div class="scroll-container">
+              <div class="scroll-content">{{ storyText }}</div>
+            </div> -->
+          </div>
       </div>
       <div v-else class="p-paper">
         <div class="p-img-content">
@@ -118,6 +121,7 @@
 <script>
 import axios from "axios";
 import config from "../../config.json";
+import story from "../../storylist.json";
 
 export default {
   data() {
@@ -141,7 +145,8 @@ export default {
       showColor: false,
       color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"],
       taskId: "",
-      uBtn: 1
+      uBtn: 1,
+      storyText: ""
     }
   },
   computed:{
@@ -280,7 +285,9 @@ export default {
     },
     openImageInNewTab(id) {
       this.uBtn = id;
+      console.log("this.imgUrl== " +this.imgUrl);
       localStorage.setItem("imgUrl",this.imgUrl);
+      console.log("localStorage imgUrl== " + localStorage.getItem("imgUrl"));
       localStorage.setItem("btnId",id);
       window.open("/new-page", '_blank');
     }
@@ -289,6 +296,8 @@ export default {
     this.menuList = config.menuList;
     this.defaultDesc = config.defaultDesc;
     this.defaultSelTxt = config.defaultSelTxt;
+
+    this.storyText = story.storyList[0].story1;
     // this.interval = config.getInterval;
     // console.log(this.interval);
     // 创建语音识别实例
@@ -303,4 +312,26 @@ export default {
 <style>
   @import './normalize.css';
   @import './index.css';
+
+  
+.scroll-container {
+  /* height: 5%; 设置滚动容器的高度 */
+  width: 80%;
+  overflow: hidden; /* 隐藏溢出内容 */
+  line-height: 1rem;
+}
+
+.scroll-content {
+  animation: scroll-up 10s linear infinite; /* 使用动画实现滚动效果 */
+}
+
+@keyframes scroll-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%); /* 从 0% 平移至 -100%，实现向上滚动 */
+  }
+}
+
 </style>
