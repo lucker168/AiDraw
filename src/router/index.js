@@ -14,10 +14,15 @@ const router = createRouter({
       name: 'new-page',
       component: () => import('../views/Displayimage.vue')
     },
+    // {
+    //   path: '/test',
+    //   name: 'test',
+    //   component: () => import('../views/Test.vue')
+    // },
     {
-      path: '/test',
-      name: 'test',
-      component: () => import('../views/Test.vue')
+      path: '/home',
+      name: 'homeIndex',
+      component: () => import('../views/HomeView.vue')
     },
   ]
 })

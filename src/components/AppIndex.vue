@@ -33,7 +33,22 @@
         </div>
         <div class="p-sub-contain">
           <div class="p-desc-contain">
+            <div class="p-title">情绪：悲伤</div>
             <div class="p-desc">{{ description ? description: defaultDesc}}</div>
+            <div class="p-button" @click="showTip=!showTip">
+              <div class="p-button-img"></div>
+              <div class="p-button-text">更多学习</div>
+            </div>
+            <div v-show="showTip" class="p-tip-contain">
+              <div class="p-tip-top">
+                <div class="p-tip-top-notes"></div>
+                <div class="p-tip-top-clip"></div>
+                <div class="p-tip-top-close" @click="showTip=!showTip"></div>
+                <div class="p-tip-top-text">
+                  一个伤感的面部表情，可以注意以下细节：眼睛变大变湿，流眼泪；眉毛皱成一团；嘴巴垂下，嘴角向下弯；脸变瘦，脸肌肉变松；鼻子红红的，有时会流鼻涕；额头有很多皱纹；脸变得没力气。这些细节可以帮助我们画出伤感或难受的表情！记得，如果感到伤心，可以找人倾诉，我们都会在困难中互相支持。加油！
+                </div>
+              </div>
+            </div>
           </div>
           <div class="p-action-contain">
             <div class="p-selection">
@@ -146,7 +161,8 @@ export default {
       color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"],
       taskId: "",
       uBtn: 1,
-      storyText: ""
+      storyText: "",
+      showTip: true,
     }
   },
   computed:{
@@ -155,7 +171,7 @@ export default {
             case "0%":   return "队列等待中。。";
             case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
             case "": return "任务超时，请稍后再试。。";
-            case "initial": return "";
+            case "initial": return "点击按钮，上传图片";
             default: return "绘画生成中。。" + this.progress;
          }
       }
