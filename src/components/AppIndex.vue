@@ -80,7 +80,7 @@
       </div>
     </div>
     <div class="p-res-content">
-      <div v-if="true" class="p-paper">
+      <div v-if="!imgUrl" class="p-paper">
           <div class="p-loading">
             <div class="p-loading-img"></div>
             <div class="p-loading-text">{{ processStatus }}</div>
@@ -116,17 +116,17 @@
       </div>
       <div class="p-choose-contain">
         <div class="p-choose-groue">
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 1}" @click="openImageInNewTab(1)">U1</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 2}" @click="openImageInNewTab(2)">U2</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 3}" @click="openImageInNewTab(3)">U3</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 4}" @click="openImageInNewTab(4)">U4</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 1}" @click="openImageInNewTab(1)">图1</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 2}" @click="openImageInNewTab(2)">图2</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 3}" @click="openImageInNewTab(3)">图3</div>
+          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 4}" @click="openImageInNewTab(4)">图4</div>
         </div>
-        <div class="p-choose-groue">
+        <!-- <div class="p-choose-groue">
           <div class="p-c-item">V1</div>
           <div class="p-c-item">V2</div>
           <div class="p-c-item">V3</div>
           <div class="p-c-item">V4</div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -254,6 +254,7 @@ export default {
               this.downLoadPic(imageUrl, taskId);
             } else if (res.data.status == "FAILURE") {
               this.drawing = false;
+              alert(res.data.progress);
             }
           }).catch(err => {
             console.log(err)
@@ -265,12 +266,13 @@ export default {
       this.downLoadPer = 0;
       if(imgUrl && taskId) {
         const interval = setInterval(() => {
-          this.downLoadPer = this.downLoadPer + 10;
           if(this.downLoadPer == 100) {
             this.downLoadPer = 99;
             clearInterval(interval);
+          } else {
+            this.downLoadPer = this.downLoadPer + 10;
           }
-      }, 1000);
+      }, 1500);
         axios({
           method: 'get',
           url: 'http://47.242.36.60:8889/oss/download',
@@ -301,9 +303,7 @@ export default {
     },
     openImageInNewTab(id) {
       this.uBtn = id;
-      console.log("this.imgUrl== " +this.imgUrl);
       localStorage.setItem("imgUrl",this.imgUrl);
-      console.log("localStorage imgUrl== " + localStorage.getItem("imgUrl"));
       localStorage.setItem("btnId",id);
       window.open("/new-page", '_blank');
     }
