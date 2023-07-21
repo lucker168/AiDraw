@@ -5,8 +5,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: '/draw',
+      name: 'draw',
       component: () => import('../components/AppIndex.vue')
     },
     {
@@ -20,7 +20,7 @@ const router = createRouter({
     //   component: () => import('../views/Test.vue')
     // },
     {
-      path: '/home',
+      path: '/',
       name: 'homeIndex',
       component: () => import('../views/HomeView.vue')
     },

@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="top-contain">
-      <div class="top-item">关于我们</div>
-      <div class="top-item">联系我们</div>
+      <div class="top-item" @click="login()">关于我们</div>
+      <div class="top-item" @click="hello()">联系我们</div>
     </div>
     <el-carousel :autoplay="false" arrow="always" :height="height">
       <el-carousel-item v-for="(e, i) in carouselList" :key="e">
@@ -11,7 +11,7 @@
     </el-carousel>
     <div class="brand-contain">
       <div v-for="(e, i) in brandList" :key="e">
-        <div :style="{ backgroundImage: 'url(' + e.img + ')' }" class="brand-img"></div>
+        <div :style="{ backgroundImage: 'url(' + e.img + ')' }" class="brand-img" @click="routeTo(e)"></div>
         <div class="brand-text">
           <div>{{ e.name }}</div>
           <div>{{ e.subName }}</div>
@@ -22,25 +22,58 @@
 </template>
 
 <script>
+import axios  from 'axios';
+axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
+
 export default {
   data() {
     return {
       height: "25vw", // 轮播图比例: 4:1
       carouselList: [
-        {img:"", url:""},
-        {img:"", url:""},
-        {img:"", url:""},
-        {img:"", url:""},
-        {img:"", url:""},
+        {img:"./img/pic1.png", url:""},
+        {img:"./img/pic2.png", url:""},
+        {img:"./img/pic3.png", url:""},
+        {img:"./img/pic4.png", url:""}
       ],
       brandList: [
-        {img:"", name:"儿童装饰画", subName: "装饰"},
-        {img:"", name:"趣味素描", subName: "sketh"},
-        {img:"", name:"漫画阅读", subName: "comic"},
-        {img:"", name:"手工制作", subName: "manual"},
+        {img:"./img/myDrawBrand.png", name:"我的梦幻画板", subName: "draw"},
+        {img:"", name:"插画故事", subName: "sketh"},
+        {img:"", name:"AI绘画学习", subName: "comic"},
+        {img:"", name:"会员登录", subName: "manual"},
       ]
     };
   },
+  methods: {
+    routeTo(brand) {
+      console.log(brand);
+      if(brand.subName === "draw") {
+        this.$router.push({name: 'draw'});
+      }
+    },
+    async login() {
+      const res = await axios({
+          method: 'post',
+          url: '/user/login',
+          data: {
+            userName: "lucker168",
+            password: "test123"
+          }
+        });
+      console.log(res.data);
+    },
+    async hello() {
+      // const token = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkOTE3YWFkYzYwMDA0ODY3OGFjZjI4YTEyOWUyYjI1YiIsInN1YiI6IjIiLCJpc3MiOiJzZyIsImlhdCI6MTY4OTkwOTA1OCwiZXhwIjoxNjg5OTEyNjU4fQ.sKctrY-DbVeCHJmlTiak00b-4WEVxxHTTUHYm_pZA70';
+      const encodeToken = encodeURIComponent(token)
+      const res = await axios({
+          headers: {
+            token: encodeToken
+          },
+          method: 'post',
+          url: '/hello',
+        });
+      console.log(res.data);
+    }
+  }
 }
 </script>
 

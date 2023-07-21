@@ -137,6 +137,7 @@
 import axios from "axios";
 import config from "../../config.json";
 import story from "../../storylist.json";
+axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 
 export default {
   data() {
@@ -253,8 +254,9 @@ export default {
               const imageUrl = res.data.imageUrl;
               this.downLoadPic(imageUrl, taskId);
             } else if (res.data.status == "FAILURE") {
+              clearInterval(interval);
               this.drawing = false;
-              alert(res.data.progress);
+              alert(res.data.failReason);
             }
           }).catch(err => {
             console.log(err)

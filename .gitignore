@@ -29,3 +29,4 @@ coverage
 *.sw?
 
 Test.vue
+src/component/img/

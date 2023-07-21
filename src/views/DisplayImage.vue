@@ -1,6 +1,7 @@
 <template>
   <div class="image-container">
-    <img :src="croppedImage">
+    <!-- <img :src="croppedImage"> -->
+    <canvas id="canvas"></canvas>
   </div>
 </template>
 
@@ -24,9 +25,9 @@ export default {
       const img = new Image();
       img.src = localStorage.getItem("imgUrl");
       const btnId = localStorage.getItem("btnId");
-      img.setAttribute("crossOrigin",'Anonymous');
       img.onload = () => {
-        const canvas = document.createElement('canvas');
+        // const canvas = document.createElement('canvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const originalWidth = img.width;
         const originalHeight = img.height;
@@ -45,8 +46,6 @@ export default {
           case "4": {sx = croppedWidth; sy = croppedHeight}; break;
         }
         ctx.drawImage(img, sx, sy, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
-        this.croppedImage = canvas.toDataURL();  // 获取裁剪后的图片URL
-        console.log("croppedImage===>  "+this.croppedImage);
       };
   }
 };
