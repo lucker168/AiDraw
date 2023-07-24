@@ -33,7 +33,7 @@
         </div>
         <div class="p-sub-contain">
           <div class="p-desc-contain">
-            <div class="p-title">情绪：悲伤</div>
+            <div class="p-title">{{ desTitle }}</div>
             <div class="p-desc">{{ description ? description: defaultDesc}}</div>
             <div class="p-button" @click="showTip=!showTip">
               <div class="p-button-img"></div>
@@ -162,7 +162,8 @@ export default {
       taskId: "",
       uBtn: 1,
       storyText: "",
-      showTip: true,
+      showTip: false,
+      desTitle: "",
     }
   },
   computed:{
@@ -199,7 +200,10 @@ export default {
         this.selectList = [...this.selectList, ...arr];
       });
     },
-    handleMouseover(e) { this.description = e.desc;},
+    handleMouseover(e) { 
+      this.desTitle = e.name;
+      this.description = e.desc;
+    },
     handleMouseout() { this.description = this.defaultDesc },
     draw() {
       try {
