@@ -82,7 +82,9 @@
     <div class="p-res-content">
       <div v-if="!imgUrl" class="p-paper">
           <div class="p-loading">
-            <div class="p-loading-img"></div>
+            <div class="p-loading-img" @click="uploadFile">
+              <input ref="fileInput" type="file" @change="onFileChange" style="display: none;">
+            </div>
             <div class="p-loading-text">{{ processStatus }}</div>
             <!-- <div class="scroll-container">
               <div class="scroll-content">{{ storyText }}</div>
@@ -145,7 +147,6 @@ export default {
       inputDesc: '',
       baseImgUrl: "./img/",
       activeNav: 0,
-      showImage: false,
       drawing: false,
       progress: "initial",
       downLoadPer: 0,
@@ -165,6 +166,7 @@ export default {
       storyText: "",
       showTip: false,
       desTitle: "",
+      imageSrc: ""
     }
   },
   computed:{
@@ -206,13 +208,27 @@ export default {
       this.description = e.desc;
     },
     handleMouseout() { this.description = this.defaultDesc },
+    uploadFile(e) {
+      this.$refs.fileInput.click();
+    },
+    onFileChange(event) {
+      console.log('event 编码：', event);
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          this.imgUrl = e.target.result;
+          this.imageSrc = e.target.result;
+          console.log('Base64 编码：', this.imgUrl);
+        };
+        reader.readAsDataURL(file);
+    },
     draw() {
       try {
         if (this.drawing) {
           return;
         }
         this.drawing = true;
-        this.showImage = false;
         this.progress = "0%"
         let keywords = "";
         this.selectList.map(e => {
@@ -228,6 +244,7 @@ export default {
           method: 'post',
           url: '/mj/submit/imagine',
           data: {
+            base64: this.imageSrc,
             prompt: this.inputDesc,
             keyWord: keywords,
             sizePara: paras
@@ -245,6 +262,9 @@ export default {
         });
       } catch (e) {
         this.drawing = false;
+      } finally {
+        this.imgUrl = "";
+        this.imageSrc = "";
       }
     },
     getImage(taskId) {
@@ -286,7 +306,6 @@ export default {
         }).then((res) => {
           if (res.data == "success") {
             this.imgUrl = "https://mydreamypaint.oss-cn-hongkong.aliyuncs.com/" + taskId + ".png";
-            this.showImage = true;
             this.drawing = false;
           }
         }).catch(err => {

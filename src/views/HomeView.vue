@@ -14,7 +14,6 @@
         <div :style="{ backgroundImage: 'url(' + e.img + ')' }" class="brand-img" @click="routeTo(e)"></div>
         <div class="brand-text">
           <div>{{ e.name }}</div>
-          <div>{{ e.subName }}</div>
         </div>
       </div>
     </div>
@@ -40,7 +39,8 @@ export default {
         {img:"", name:"插画故事", subName: "sketh"},
         {img:"", name:"AI绘画学习", subName: "comic"},
         {img:"", name:"会员登录", subName: "manual"},
-      ]
+      ],
+      token: ''
     };
   },
   methods: {
@@ -59,11 +59,12 @@ export default {
             password: "test123"
           }
         });
-      console.log(res.data);
+      this.token = res.data.data.token;
+      console.log(this.token);
     },
     async hello() {
       // const token = 'eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkOTE3YWFkYzYwMDA0ODY3OGFjZjI4YTEyOWUyYjI1YiIsInN1YiI6IjIiLCJpc3MiOiJzZyIsImlhdCI6MTY4OTkwOTA1OCwiZXhwIjoxNjg5OTEyNjU4fQ.sKctrY-DbVeCHJmlTiak00b-4WEVxxHTTUHYm_pZA70';
-      const encodeToken = encodeURIComponent(token)
+      const encodeToken = encodeURIComponent(this.token)
       const res = await axios({
           headers: {
             token: encodeToken
