@@ -98,7 +98,7 @@
         </div>
       </div>
 
-      <div class="p-color-contain">
+      <!-- <div class="p-color-contain">
         <div class="p-color-text">背景色</div>
         <div class="p-color-bg p-white"></div>
         <div class="p-color-bg p-blue"></div>
@@ -115,7 +115,7 @@
             ></div>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="p-choose-contain">
         <div class="p-choose-groue">
           <div :class="{'p-c-item': true , 'is-selected' : uBtn == 1}" @click="openImageInNewTab(1)">图1</div>
@@ -137,7 +137,7 @@
 
 <script>
 import axios from "axios";
-import config from "../../config.json";
+// import config from "../../config.json";
 import story from "../../storylist.json";
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 
@@ -181,6 +181,24 @@ export default {
       }
   },
   methods: {
+    loadConfig() {
+      fetch("config.json")
+        .then(response => response.json())
+        .then(data => {
+          this.menuList = data.menuList;
+          this.defaultDesc = data.defaultDesc;
+          this.defaultSelTxt = data.defaultSelTxt;
+          this.subMenu = this.menuList[this.activeNav].subMenu;
+        })
+        .catch(error => {
+          console.error('Error loading config.json', error);
+        });
+      // axios.get('/menu/getMenu').then(
+      //   res => { 
+      //       this.menuList = res.data.data;
+      //       this.subMenu = this.menuList[this.activeNav].subMenu;
+      //   });
+    },
     handleClickMenu(item, index) {
       this.showSubMenu = !this.showSubMenu;
       this.activeNav = index;
@@ -222,6 +240,13 @@ export default {
           console.log('Base64 编码：', this.imgUrl);
         };
         reader.readAsDataURL(file);
+    },
+    saveMenu() {
+      axios({
+          method: 'post',
+          url: '/menu/saveMenu',
+          data: this.menuList
+        });
     },
     draw() {
       try {
@@ -334,19 +359,13 @@ export default {
     }
   },
   mounted() {
-    this.menuList = config.menuList;
-    this.defaultDesc = config.defaultDesc;
-    this.defaultSelTxt = config.defaultSelTxt;
-
+    this.loadConfig();
     this.storyText = story.storyList[0].story1;
-    // this.interval = config.getInterval;
-    // console.log(this.interval);
     // 创建语音识别实例
     this.recognition = new webkitSpeechRecognition();
     this.recognition.lang = 'zh-CN'; // 设置语言为中文
     this.recognition.onresult = this.handleRecognitionResult;
     this.recognition.onerror = this.handleRecognitionError;
-    this.subMenu = this.menuList[this.activeNav].subMenu;
   }
 }
 </script>
