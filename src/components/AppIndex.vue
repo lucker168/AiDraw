@@ -34,8 +34,8 @@
         <div class="p-sub-contain">
           <div class="p-desc-contain">
             <div class="p-title">{{ desTitle }}</div>
-            <div class="p-desc">{{ description ? description: defaultDesc}}</div>
-            <div class="p-button" @click="showTip=!showTip">
+            <div class="p-desc" v-html="description ? description: defaultDesc"></div>
+            <div class="p-button" @click="loadContext">
               <div class="p-button-img"></div>
               <div class="p-button-text">更多学习</div>
             </div>
@@ -44,9 +44,7 @@
                 <div class="p-tip-top-notes"></div>
                 <div class="p-tip-top-clip"></div>
                 <div class="p-tip-top-close" @click="showTip=!showTip"></div>
-                <div class="p-tip-top-text">
-                  一个伤感的面部表情，可以注意以下细节：眼睛变大变湿，流眼泪；眉毛皱成一团；嘴巴垂下，嘴角向下弯；脸变瘦，脸肌肉变松；鼻子红红的，有时会流鼻涕；额头有很多皱纹；脸变得没力气。这些细节可以帮助我们画出伤感或难受的表情！记得，如果感到伤心，可以找人倾诉，我们都会在困难中互相支持。加油！
-                </div>
+                <div class="p-tip-top-text" v-html="blogContext"></div>
               </div>
             </div>
           </div>
@@ -152,6 +150,7 @@ export default {
       downLoadPer: 0,
       imgUrl: "",
       description: "",
+      selWordNm: "",
       defaultDesc: "",
       selectList: [],
       defaultSelTxt: "",
@@ -166,7 +165,8 @@ export default {
       storyText: "",
       showTip: false,
       desTitle: "",
-      imageSrc: ""
+      imageSrc: "",
+      blogContext: ""
     }
   },
   computed:{
@@ -181,6 +181,15 @@ export default {
       }
   },
   methods: {
+    loadContext() {
+      if (this.selWordNm) {
+        axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
+          res => {
+            this.blogContext = res.data.result;
+            this.showTip = !this.showTip;
+          });
+      }
+    },
     loadConfig() {
       fetch("config.json")
         .then(response => response.json())
@@ -188,6 +197,7 @@ export default {
           this.menuList = data.menuList;
           this.defaultDesc = data.defaultDesc;
           this.defaultSelTxt = data.defaultSelTxt;
+          this.interval = data.getInterval;
           this.subMenu = this.menuList[this.activeNav].subMenu;
         })
         .catch(error => {
@@ -213,6 +223,7 @@ export default {
       item.isSelected = !item.isSelected;
       if (item.isSelected) {
         this.description = item.desc;
+        this.selWordNm = item.img.split(".")[0];
       } else {
         this.description = "";
       }
@@ -227,6 +238,9 @@ export default {
     },
     handleMouseout() { this.description = this.defaultDesc },
     uploadFile(e) {
+      if (this.drawing) {
+          return;
+      }
       this.$refs.fileInput.click();
     },
     onFileChange(event) {
@@ -311,7 +325,7 @@ export default {
             console.log(err)
             this.drawing = false;
           });
-      }, config.getInterval);
+      }, this.interval);
     },
     downLoadPic(imgUrl,taskId) {
       this.downLoadPer = 0;
