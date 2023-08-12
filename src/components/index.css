@@ -226,7 +226,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   background: #EAF4FB;
   box-shadow: 0rem 0.0833333333rem 2.25rem -0.25rem rgba(74, 100, 133, 0.51);
   border-radius: 1.6666666667rem;
-  z-index: 99;
+  z-index: 999;
 }
 body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-contain .p-tip-top {
   display: flex;
