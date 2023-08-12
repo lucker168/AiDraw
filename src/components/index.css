@@ -218,7 +218,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-button .p
 }
 body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-contain {
   position: absolute;
-  top: 1.125rem;
+  top: -0.65rem;
   left: 105%;
   width: 33.3333333333rem;
   height: 32.0833333333rem;
@@ -277,6 +277,9 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   color: #0E6283;
   line-height: 1.125rem;
   overflow-y: scroll;
+}
+body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-contain .p-tip-top .p-tip-top-text .p-tip-top-html img{
+ max-width: 100%;
 }
 body .p-contain .p-content .p-action .p-sub-contain .p-action-contain {
   flex-grow: 1;

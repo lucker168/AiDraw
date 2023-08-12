@@ -44,7 +44,9 @@
                 <div class="p-tip-top-notes"></div>
                 <div class="p-tip-top-clip"></div>
                 <div class="p-tip-top-close" @click="showTip=!showTip"></div>
-                <div class="p-tip-top-text" v-html="blogContext"></div>
+                <div class="p-tip-top-text">
+                  <div class="p-tip-top-html" v-html="blogContext"></div>
+                </div>
               </div>
             </div>
           </div>
