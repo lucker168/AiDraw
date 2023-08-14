@@ -35,7 +35,7 @@
           <div class="p-desc-contain">
             <div class="p-title">{{ desTitle }}</div>
             <div class="p-desc" v-html="description ? description: defaultDesc"></div>
-            <div class="p-button" @click="loadContext">
+            <div class="p-button" @click="loadContext" :disabled="isDisabled">
               <div class="p-button-img"></div>
               <div class="p-button-text">更多学习</div>
             </div>
@@ -153,6 +153,7 @@ export default {
       imgUrl: "",
       description: "",
       selWordNm: "",
+      isDisabled: false,
       defaultDesc: "",
       selectList: [],
       defaultSelTxt: "",
@@ -183,13 +184,27 @@ export default {
       }
   },
   methods: {
-    loadContext() {
-      if (this.selWordNm) {
-        axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
-          res => {
-            this.blogContext = res.data.result;
-            this.showTip = !this.showTip;
-          });
+    async loadContext() {
+      if (this.isDisabled) {
+        return;
+      }
+      try {
+        if (this.selWordNm) {
+          this.isDisabled = true;
+          await axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
+            res => {
+              this.blogContext = res.data.result;
+              if (this.blogContext) {
+                this.showTip = !this.showTip;
+              } else {
+                alert("没找到对应的文件");
+              }
+            });
+        } else {
+          alert("请选择一个关键字!");
+        }
+      } finally {
+        this.isDisabled = false;
       }
     },
     loadConfig() {
@@ -225,7 +240,6 @@ export default {
       item.isSelected = !item.isSelected;
       if (item.isSelected) {
         this.description = item.desc;
-        this.selWordNm = item.img.split(".")[0];
       } else {
         this.description = "";
       }
@@ -233,6 +247,12 @@ export default {
         let arr = e.subMenu.filter((ee) => { return ee.isSelected;});
         this.selectList = [...this.selectList, ...arr];
       });
+      if (this.selectList.length > 0) {
+        const size = this.selectList.length -1;
+        this.selWordNm = this.selectList[size].img.split(".")[0];
+      } else {
+        this.selWordNm = "";
+      }
     },
     handleMouseover(e) { 
       this.desTitle = e.name;
