@@ -45,7 +45,10 @@
                 <div class="p-tip-top-clip"></div>
                 <div class="p-tip-top-close" @click="showTip=!showTip"></div>
                 <div class="p-tip-top-text">
-                  <div class="p-tip-top-html" v-html="blogContext"></div>
+                  <div class="p-tip-top-html" v-if="isDisabled">
+                    <img :src="baseImgUrl + 'loading.gif'"/>
+                  </div>
+                  <div class="p-tip-top-html" v-if="!isDisabled" v-html="blogContext"></div>
                 </div>
               </div>
             </div>
@@ -117,18 +120,12 @@
         </div>
       </div> -->
       <div class="p-choose-contain">
-        <div class="p-choose-groue">
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 1}" @click="openImageInNewTab(1)">图1</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 2}" @click="openImageInNewTab(2)">图2</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 3}" @click="openImageInNewTab(3)">图3</div>
-          <div :class="{'p-c-item': true , 'is-selected' : uBtn == 4}" @click="openImageInNewTab(4)">图4</div>
+        <div class="p-choose-groue" v-if="subImages.length > 0">
+          <div v-for="(imageUrl,index) in subImages" :key="index" 
+          :class="{'p-c-item': true , 'is-selected' : uBtn == index}" :style="{'background-image': 'url(' + imageUrl + ')'}"
+          @click="openImageInNewTab(imageUrl,index)">
+          </div>
         </div>
-        <!-- <div class="p-choose-groue">
-          <div class="p-c-item">V1</div>
-          <div class="p-c-item">V2</div>
-          <div class="p-c-item">V3</div>
-          <div class="p-c-item">V4</div>
-        </div> -->
       </div>
     </div>
   </div>
@@ -169,7 +166,8 @@ export default {
       showTip: false,
       desTitle: "",
       imageSrc: "",
-      blogContext: ""
+      blogContext: "",
+      subImages: []
     }
   },
   computed:{
@@ -191,13 +189,18 @@ export default {
       try {
         if (this.selWordNm) {
           this.isDisabled = true;
+          this.showTip = true;
           await axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
             res => {
-              this.blogContext = res.data.result;
-              if (this.blogContext) {
-                this.showTip = !this.showTip;
+              if (res.data.result) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = res.data.result;
+                const firstDiv = tempDiv.querySelector('div');
+                firstDiv.removeAttribute('style');
+                this.blogContext = tempDiv.innerHTML;
+                this.isDisabled = false;
               } else {
-                alert("没找到对应的文件");
+                this.blogContext = "没找到对应的文件";
               }
             });
         } else {
@@ -208,22 +211,28 @@ export default {
       }
     },
     loadConfig() {
-      fetch("config.json")
-        .then(response => response.json())
-        .then(data => {
-          this.menuList = data.menuList;
-          this.defaultDesc = data.defaultDesc;
-          this.defaultSelTxt = data.defaultSelTxt;
-          this.interval = data.getInterval;
+      axios.get('/mj/data/getConfig').then(
+        res => { 
+          const config = res.data.result;
+          this.menuList = config.menuList;
+          this.defaultDesc = config.defaultDesc;
+          this.defaultSelTxt = config.defaultSelTxt;
+          this.interval = config.getInterval;
           this.subMenu = this.menuList[this.activeNav].subMenu;
-        })
-        .catch(error => {
+        }).catch(error => {
           console.error('Error loading config.json', error);
         });
-      // axios.get('/menu/getMenu').then(
-      //   res => { 
-      //       this.menuList = res.data.data;
-      //       this.subMenu = this.menuList[this.activeNav].subMenu;
+      // fetch("config.json")
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     this.menuList = data.menuList;
+      //     this.defaultDesc = data.defaultDesc;
+      //     this.defaultSelTxt = data.defaultSelTxt;
+      //     this.interval = data.getInterval;
+      //     this.subMenu = this.menuList[this.activeNav].subMenu;
+      //   })
+      //   .catch(error => {
+      //     console.error('Error loading config.json', error);
       //   });
     },
     handleClickMenu(item, index) {
@@ -247,16 +256,11 @@ export default {
         let arr = e.subMenu.filter((ee) => { return ee.isSelected;});
         this.selectList = [...this.selectList, ...arr];
       });
-      if (this.selectList.length > 0) {
-        const size = this.selectList.length -1;
-        this.selWordNm = this.selectList[size].img.split(".")[0];
-      } else {
-        this.selWordNm = "";
-      }
     },
     handleMouseover(e) { 
       this.desTitle = e.name;
       this.description = e.desc;
+      this.selWordNm = e.img.split(".")[0];
     },
     handleMouseout() { this.description = this.defaultDesc },
     uploadFile(e) {
@@ -277,20 +281,12 @@ export default {
         };
         reader.readAsDataURL(file);
     },
-    saveMenu() {
-      axios({
-          method: 'post',
-          url: '/menu/saveMenu',
-          data: this.menuList
-        });
-    },
     draw() {
       try {
         if (this.drawing) {
           return;
         }
         this.drawing = true;
-        this.progress = "0%"
         let keywords = "";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
@@ -314,8 +310,6 @@ export default {
           alert(res.data.description);
           if (res.data.code == 1) {
             this.getImage(res.data.result);
-          } else {
-            this.drawing = false;
           }
         }).catch(err => {
           console.log(err);
@@ -336,8 +330,7 @@ export default {
             this.progress = res.data.progress;
             if (res.data && res.data.progress == "100%") {
               clearInterval(interval);
-              const imageUrl = res.data.imageUrl;
-              this.downLoadPic(imageUrl, taskId);
+              this.downLoadPic(taskId);
             } else if (res.data.status == "FAILURE") {
               clearInterval(interval);
               this.drawing = false;
@@ -349,24 +342,18 @@ export default {
           });
       }, this.interval);
     },
-    downLoadPic(imgUrl,taskId) {
+    downLoadPic(taskId) {
       this.downLoadPer = 0;
-      if(imgUrl && taskId) {
-        const interval = setInterval(() => {
-          if(this.downLoadPer == 100) {
-            this.downLoadPer = 99;
-            clearInterval(interval);
-          } else {
-            this.downLoadPer = this.downLoadPer + 10;
-          }
-      }, 1500);
+      if(taskId) {
+        this.imgUrl = this.baseImgUrl + "loading.gif";
         axios({
           method: 'get',
-          url: 'http://47.242.36.60:8889/oss/download',
-          params: {"imgURL": imgUrl,"taskId": taskId}
+          url: '/mj/data/getImage',
+          params: {"taskId": taskId}
         }).then((res) => {
-          if (res.data == "success") {
-            this.imgUrl = "https://mydreamypaint.oss-cn-hongkong.aliyuncs.com/" + taskId + ".png";
+          if (res.data.code == 1) {
+            this.subImages = res.data.result; 
+            this.imgUrl = this.subImages[0];
             this.drawing = false;
           }
         }).catch(err => {
@@ -387,11 +374,12 @@ export default {
     handleRecognitionError(event) {
       console.error(event.error);
     },
-    openImageInNewTab(id) {
+    openImageInNewTab(imageUrl,id) {
       this.uBtn = id;
-      localStorage.setItem("imgUrl",this.imgUrl);
-      localStorage.setItem("btnId",id);
-      window.open("/new-page", '_blank');
+      // localStorage.setItem("imgUrl",this.imgUrl);
+      // localStorage.setItem("btnId",id);
+      // window.open("/new-page", '_blank');
+      this.imgUrl = imageUrl;
     }
   },
   mounted() {
