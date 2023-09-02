@@ -83,6 +83,7 @@
       </div>
     </div>
     <div class="p-res-content">
+      <div class="p-res-wrap">
       <div v-if="!imgUrl" class="p-paper">
           <div class="p-loading">
             <div class="p-loading-img" @click="uploadFile">
@@ -120,13 +121,14 @@
         </div>
       </div> -->
       <div class="p-choose-contain">
-        <div class="p-choose-groue" v-if="subImages.length > 0">
+        <div class="p-choose-group" v-if="subImages.length > 0">
           <div v-for="(imageUrl,index) in subImages" :key="index" 
           :class="{'p-c-item': true , 'is-selected' : uBtn == index}" :style="{'background-image': 'url(' + imageUrl + ')'}"
           @click="openImageInNewTab(imageUrl,index)">
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
