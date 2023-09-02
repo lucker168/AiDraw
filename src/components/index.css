@@ -563,6 +563,3 @@ body .p-contain .p-res-content .p-choose-contain .p-choose-group .p-c-item {
 body .p-contain .p-res-content .p-choose-contain .p-choose-group .is-selected {
   border-color: #17b2ef;
 }
-body .p-contain .p-res-content .p-choose-contain .p-choose-group:nth-child(1) {
-  margin-right: 1.6666666667rem;
-}
