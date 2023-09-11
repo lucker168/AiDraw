@@ -10,6 +10,11 @@ const router = createRouter({
       component: () => import('../components/AppIndex.vue')
     },
     {
+      path: '/',
+      name: 'draw',
+      component: () => import('../components/AppIndex.vue')
+    },
+    {
       path: '/new-page',
       name: 'new-page',
       component: () => import('../views/Displayimage.vue')
@@ -19,11 +24,11 @@ const router = createRouter({
     //   name: 'test',
     //   component: () => import('../views/Test.vue')
     // },
-    {
-      path: '/',
-      name: 'homeIndex',
-      component: () => import('../views/HomeView.vue')
-    },
+    // {
+    //   path: '/',
+    //   name: 'homeIndex',
+    //   component: () => import('../views/HomeView.vue')
+    // },
   ]
 })
 

@@ -75,7 +75,7 @@
               placeholder="请输入描述词语…" v-model="inputDesc"
             ></textarea>
             <div class="p-voice" @click="startSpeechRecognition()"></div>
-            <div class="p-btn" :class="drawing?'is-drawing':''" @click="draw()" :disabled="drawing">
+            <div class="p-btn" :class="drawing?'is-drawing':''" @click="drawWithLogin()" :disabled="drawing">
               <div>开始绘画</div>
             </div>
           </div>
@@ -101,25 +101,6 @@
           <el-image :src="imgUrl" :preview-src-list="[imgUrl]"></el-image>
         </div>
       </div>
-
-      <!-- <div class="p-color-contain">
-        <div class="p-color-text">背景色</div>
-        <div class="p-color-bg p-white"></div>
-        <div class="p-color-bg p-blue"></div>
-        <div class="p-color-bg p-yellow"></div>
-        <div class="p-color-bg p-palette">
-          <div class="p-palette-box" @click="showColor = !showColor"></div>
-          <div v-show="showColor" class="p-color-selector">
-            <div
-              class="c-color-item"
-              v-for="(e, i) in color"
-              :key="i"
-              :style="'background:' + e"
-              @click="showColor = !showColor"
-            ></div>
-          </div>
-        </div>
-      </div> -->
       <div class="p-choose-contain">
         <div class="p-choose-group" v-if="subImages.length > 0">
           <div v-for="(imageUrl,index) in subImages" :key="index" 
@@ -130,6 +111,9 @@
       </div>
     </div>
     </div>
+    <ModelMsg v-if="modalBVisible" :imageUrl="qrCode" :status_desc="status_desc" @close="closeModal">
+      <!-- 这里可以放组件B的内容 -->
+    </ModelMsg>
   </div>
 </template>
 
@@ -138,9 +122,13 @@
 import axios from "axios";
 // import config from "../../config.json";
 import story from "../../storylist.json";
+import ModelMsg from "../views/ModelMessage.vue";
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 
 export default {
+  components: {
+    ModelMsg
+  },
   data() {
     return {
       inputDesc: '',
@@ -156,26 +144,32 @@ export default {
       defaultDesc: "",
       selectList: [],
       defaultSelTxt: "",
-      interval: 10,
+      interval: 100,
       subMenu: [],
       showSubMenu: false,
       menuList: [],
       showColor: false,
       color: ["#e2bc34","#fa9435","#ff6a45","#f1465c","#d33072","#a52e82","#2c58b6","#0079d7","#59b27d","#f4f7a4","#cecece","#000000"],
       taskId: "",
-      uBtn: 1,
+      uBtn: 0,
       storyText: "",
       showTip: false,
       desTitle: "",
       imageSrc: "",
       blogContext: "",
-      subImages: []
+      subImages: [],
+      appUrl: "https://paintapi.braveeer.com/",
+      modalBVisible: false,
+      qrCode: "",
+      status_desc: "未扫码",
+      token: "",
+      queueSize: 1
     }
   },
   computed:{
       processStatus() {
          switch(this.progress) {
-            case "0%":   return "队列等待中。。";
+            case "0%":   return "队列等待中。。当前为第 "+this.queueSize+" 个，预计需要 "+ this.queueSize*2+" 分钟";
             case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
             case "": return "任务超时，请稍后再试。。";
             case "initial": return "点击按钮，上传图片";
@@ -184,6 +178,9 @@ export default {
       }
   },
   methods: {
+    closeModal() {
+      this.modalBVisible = false;
+    },
     async loadContext() {
       if (this.isDisabled) {
         return;
@@ -262,7 +259,7 @@ export default {
     handleMouseover(e) { 
       this.desTitle = e.name;
       this.description = e.desc;
-      this.selWordNm = e.img.split(".")[0];
+      this.selWordNm = e.dtls;
     },
     handleMouseout() { this.description = this.defaultDesc },
     uploadFile(e) {
@@ -283,12 +280,59 @@ export default {
         };
         reader.readAsDataURL(file);
     },
+    async drawWithLogin() {
+      // this.token = sessionStorage.getItem("Authorization");
+      if (this.token) {
+        // this.draw();
+      } else {
+        let scene = "64f37037d04e1";
+        await axios.get(this.appUrl + '/api/web/login/qrcode').then(
+          res => {
+            const scene = res.data.result.scene;
+            this.qrCode = res.data.result.qrcode_img;
+            this.modalBVisible = true;
+          }
+        );
+        const checkInterval = setInterval(() => {
+          axios.get(this.appUrl + '/api/web/login/check', { params: { "scene": scene } }).then(
+            res => {
+              const status = res.data.result.status;
+              const openId = res.data.result.open_id;
+              this.status_desc = res.data.result.status_desc;
+              const access_token = res.data.result.access_token;
+              if (status === 3) {
+                sessionStorage.setItem("Authorization", "bearer " + access_token);
+                clearInterval(checkInterval);
+                // this.modalBVisible = false;
+                // this.draw();
+              }
+            }
+          );}, 1000);
+      }
+    },
+    updateApp(token, taskId, keywords, paras) {
+      axios({
+        method: 'post',
+        url: this.appUrl + '/api/imgTask/submit',
+        data: {
+          prompt: this.inputDesc,
+          task_id: taskId,
+          keyWord: keywords,
+          size_param: paras
+        },
+        headers: {
+          'Authorization': token, // 设置Authorization头属性
+          'Content-Type': 'application/json', // 设置请求的Content-Type
+        },
+      });
+    },
     draw() {
       try {
         if (this.drawing) {
           return;
         }
         this.drawing = true;
+        this.progress = "initial";
         let keywords = "";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
@@ -309,9 +353,17 @@ export default {
             sizePara: paras
           }
         }).then((res) => {
-          alert(res.data.description);
           if (res.data.code == 1) {
-            this.getImage(res.data.result);
+            // axios.get(`/mj/task/queue`).then(
+            //   res => {
+            //     let size = res.data.length;
+            //     alert("当前排队第 " + size +" 预计需要 " + 2*size + " 分钟" );
+            //   }
+            // );
+            this.queueSize = res.data.properties.queueSize;
+            const taskId = res.data.result;
+            this.updateApp(this.token,taskId, keywords, paras);
+            this.getImage(taskId);
           }
         }).catch(err => {
           console.log(err);
