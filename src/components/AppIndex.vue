@@ -93,6 +93,7 @@
             <!-- <div class="scroll-container">
               <div class="scroll-content">{{ storyText }}</div>
             </div> -->
+            <!-- <div v-if="processStatus === '0%'" class="p-loading-text">测试文本</div> -->
           </div>
       </div>
       <div v-else class="p-paper">
@@ -132,7 +133,7 @@ export default {
   data() {
     return {
       inputDesc: '',
-      baseImgUrl: "./img/",
+      baseImgUrl: "/img/",
       activeNav: 0,
       drawing: false,
       progress: "initial",
@@ -158,7 +159,7 @@ export default {
       imageSrc: "",
       blogContext: "",
       subImages: [],
-      appUrl: "https://paintapi.braveeer.com/",
+      appUrl: "https://paintapi.braveeer.com",
       modalBVisible: false,
       qrCode: "",
       status_desc: "未扫码",
@@ -281,14 +282,15 @@ export default {
         reader.readAsDataURL(file);
     },
     async drawWithLogin() {
-      // this.token = sessionStorage.getItem("Authorization");
+      this.token = sessionStorage.getItem("Authorization");
       if (this.token) {
-        // this.draw();
+        // this.getUserInfo(this.token);
+        this.draw();
       } else {
-        let scene = "64f37037d04e1";
+        let scene = "";
         await axios.get(this.appUrl + '/api/web/login/qrcode').then(
           res => {
-            const scene = res.data.result.scene;
+            scene = res.data.result.scene;
             this.qrCode = res.data.result.qrcode_img;
             this.modalBVisible = true;
           }
@@ -299,16 +301,29 @@ export default {
               const status = res.data.result.status;
               const openId = res.data.result.open_id;
               this.status_desc = res.data.result.status_desc;
-              const access_token = res.data.result.access_token;
+              this.token = res.data.result.access_token;
               if (status === 3) {
-                sessionStorage.setItem("Authorization", "bearer " + access_token);
+                sessionStorage.setItem("Authorization", this.token);
                 clearInterval(checkInterval);
-                // this.modalBVisible = false;
-                // this.draw();
+                this.modalBVisible = false;
+                this.draw();
               }
             }
           );}, 1000);
       }
+    },
+    getUserInfo(token) {
+      axios({
+        method: 'get',
+        url: this.appUrl + '/api/user/info',
+        headers: {
+          'Authorization': "bearer "+token, // 设置Authorization头属性
+          'Content-Type': 'application/json', // 设置请求的Content-Type
+        },
+      }).then(
+        res => {
+          alert(res);
+      });
     },
     updateApp(token, taskId, keywords, paras) {
       axios({
@@ -321,7 +336,7 @@ export default {
           size_param: paras
         },
         headers: {
-          'Authorization': token, // 设置Authorization头属性
+          'Authorization': "bearer "+token, // 设置Authorization头属性
           'Content-Type': 'application/json', // 设置请求的Content-Type
         },
       });
@@ -333,6 +348,7 @@ export default {
         }
         this.drawing = true;
         this.progress = "initial";
+        this.subImages = [];
         let keywords = "";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
@@ -354,12 +370,6 @@ export default {
           }
         }).then((res) => {
           if (res.data.code == 1) {
-            // axios.get(`/mj/task/queue`).then(
-            //   res => {
-            //     let size = res.data.length;
-            //     alert("当前排队第 " + size +" 预计需要 " + 2*size + " 分钟" );
-            //   }
-            // );
             this.queueSize = res.data.properties.queueSize;
             const taskId = res.data.result;
             this.updateApp(this.token,taskId, keywords, paras);

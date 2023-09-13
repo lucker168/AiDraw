@@ -24,7 +24,7 @@ body .p-contain {
   display: flex;
   width: 100%;
   height: 100vh;
-  background-image: url(./img/background.png);
+  background-image: url(/img/background.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -40,7 +40,7 @@ body .p-contain .p-content .p-logo {
 body .p-contain .p-content .p-logo .p-logo1 {
   width: 5rem;
   height: 5rem;
-  background-image: url(./img/logo1.png);
+  background-image: url(/img/logo1.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -48,7 +48,7 @@ body .p-contain .p-content .p-logo .p-logo2 {
   width: 12.1666666667rem;
   height: 3.7916666667rem;
   margin-left: 0.9583333333rem;
-  background-image: url(./img/logo2.png);
+  background-image: url(/img/logo2.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -159,7 +159,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain {
   position: relative;
   width: 17.0833333333rem;
   height: 11.25rem;
-  background-image: url(./img/des_bg.png);
+  background-image: url(/img/des_bg.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -203,7 +203,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-button {
 body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-button .p-button-img {
   width: 1.0416666667rem;
   height: 0.7916666667rem;
-  background-image: url(./img/study.png);
+  background-image: url(/img/study.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -236,7 +236,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   width: 2.5416666667rem;
   height: 0.75rem;
   margin-top: 1.4583333333rem;
-  background-image: url(./img/notes.png);
+  background-image: url(/img/notes.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   z-index: 999;
@@ -245,7 +245,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   width: 3.875rem;
   height: 4.0416666667rem;
   margin-top: 0.4166666667rem;
-  background-image: url(./img/clip.png);
+  background-image: url(/img/clip.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   z-index: 999;
@@ -254,7 +254,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   width: 0.9166666667rem;
   height: 0.9166666667rem;
   margin-top: 1.125rem;
-  background-image: url(./img/close.png);
+  background-image: url(/img/close.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   z-index: 999;
@@ -268,7 +268,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-desc-contain .p-tip-conta
   width: 27.5rem;
   height: 25.8333333333rem;
   padding: 2.0833333333rem 0.8333333333rem 0.7083333333rem 0.8333333333rem;
-  background-image: url(./img/tip_bg.png);
+  background-image: url(/img/tip_bg.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   font-size: 0.75rem;
@@ -328,7 +328,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-selecti
   width: 0.9166666667rem;
   height: 0.6666666667rem;
   margin-left: 0.6666666667rem;
-  background-image: url(./img/select.png);
+  background-image: url(/img/select.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -349,7 +349,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-voice {
   width: 1.25rem;
   height: 1.25rem;
   margin-top: 0.4166666667rem;
-  background-image: url(./img/yuyin.png);
+  background-image: url(/img/yuyin.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -359,7 +359,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-btn {
   justify-content: center;
   height: 2.2083333333rem;
   margin-top: 0.4166666667rem;
-  background-image: url(./img/button_a.png);
+  background-image: url(/img/button_a.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   font-size: 0.8333333333rem;
@@ -370,7 +370,7 @@ body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-btn {
   cursor: pointer;
 }
 body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .is-drawing {
-  background-image: url(./img/button.png);
+  background-image: url(/img/button.png);
 }
 body .p-contain .p-res-content {
   width: 48.9166666667rem;
@@ -397,7 +397,7 @@ body .p-contain .p-res-content .p-paper {
   justify-content: center;
   width: 100%;
   height: 80%;
-  background-image: url(./img/paper2.png);
+  background-image: url(/img/paper2.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   overflow: hidden;
@@ -410,7 +410,7 @@ body .p-contain .p-res-content .p-paper .p-loading {
 body .p-contain .p-res-content .p-paper .p-loading .p-loading-img {
   width: 3.75rem;
   height: 3.75rem;
-  background-image: url(./img/add.png);
+  background-image: url(/img/add.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -480,17 +480,17 @@ body .p-contain .p-res-content .p-color-contain .p-color-bg {
   cursor: pointer;
 }
 body .p-contain .p-res-content .p-color-contain .p-white {
-  background-image: url(./img/c_white.png);
+  background-image: url(/img/c_white.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
 body .p-contain .p-res-content .p-color-contain .p-blue {
-  background-image: url(./img/c_blue.png);
+  background-image: url(/img/c_blue.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
 body .p-contain .p-res-content .p-color-contain .p-yellow {
-  background-image: url(./img/c_yellow.png);
+  background-image: url(/img/c_yellow.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -503,7 +503,7 @@ body .p-contain .p-res-content .p-color-contain .p-palette .p-palette-box {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url(./img/c_palette.png);
+  background-image: url(/img/c_palette.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -532,7 +532,7 @@ body .p-contain .p-res-content .p-choose-contain {
   justify-content: center;
   width: 100%;
   height: 18%;
-  background-image: url(./img/choose_bg.png);
+  background-image: url(/img/choose_bg.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   font-size: 0.5833333333rem;
@@ -553,7 +553,7 @@ body .p-contain .p-res-content .p-choose-contain .p-choose-group .p-c-item {
   width: 5rem;
   height: 5rem;
   margin: 0 0.5rem;
-  background-image: url(./img/btn_bg.png);
+  background-image: url(/img/btn_bg.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   border-radius: 1rem;

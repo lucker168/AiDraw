@@ -29,13 +29,13 @@ export default {
     return {
       height: "25vw", // 轮播图比例: 4:1
       carouselList: [
-        {img:"./img/pic1.png", url:""},
-        {img:"./img/pic2.png", url:""},
-        {img:"./img/pic3.png", url:""},
-        {img:"./img/pic4.png", url:""}
+        {img:"/img/pic1.png", url:""},
+        {img:"/img/pic2.png", url:""},
+        {img:"/img/pic3.png", url:""},
+        {img:"/img/pic4.png", url:""}
       ],
       brandList: [
-        {img:"./img/myDrawBrand.png", name:"我的梦幻画板", subName: "draw"},
+        {img:"/img/myDrawBrand.png", name:"我的梦幻画板", subName: "draw"},
         {img:"", name:"插画故事", subName: "sketh"},
         {img:"", name:"AI绘画学习", subName: "comic"},
         {img:"", name:"会员登录", subName: "manual"},

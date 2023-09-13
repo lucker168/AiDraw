@@ -1,10 +1,11 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <!-- 图片显示区域 -->
+      <div class="status-description">我的梦幻画板</div>
       <div class="image-container">
         <img :src="imageUrl" alt="QR Code" />
       </div>
+      <div class="status-description">打开微信,扫码登录我的梦幻画板Web版本</div>
       <div class="status-description">{{ status_desc }}</div>
     </div>
   </div>
@@ -16,13 +17,7 @@ export default {
   props: {
     imageUrl: String, // 图片的URL
     status_desc: String
-  },
-  methods: {
-    closeModal() {
-      // 触发关闭模态框事件，通知父组件
-      this.$emit('close');
-    },
-  },
+  }
 };
 </script>
 
@@ -74,6 +69,7 @@ img {
 .status-description {
   margin-top: 10px; /* 设置与图片的间距 */
   /* 添加其他样式以满足您的需求，如字体大小、颜色等 */
+  font-size: small;
 }
 
 </style>
