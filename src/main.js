@@ -7,7 +7,7 @@ import 'element-plus/theme-chalk/index.css'
 
 const app = createApp(App)
 app.config.globalProperties.$ajax = axios;
-axios.defaults.baseURL = 'http://www.mydreamypaint.com';
+axios.defaults.baseURL = 'https://www.mydreamypaint.com';
 app.use(router).use(ElementPlus)
 
 app.mount('#app')

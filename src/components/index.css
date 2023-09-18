@@ -353,6 +353,13 @@ body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-voice {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-message {
+  white-space: nowrap;
+  display: inline;
+  font-size: x-small;
+  margin-left: 1.5rem;
+  color: red;
+}
 body .p-contain .p-content .p-action .p-sub-contain .p-action-contain .p-btn {
   display: flex;
   align-items: center;

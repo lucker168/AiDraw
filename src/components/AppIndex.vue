@@ -74,7 +74,9 @@
               class="p-textarea"
               placeholder="请输入描述词语…" v-model="inputDesc"
             ></textarea>
-            <div class="p-voice" @click="startSpeechRecognition()"></div>
+            <div class="p-voice" @click="startSpeechRecognition()"> 
+              <div class="p-message">{{ messages }}</div>
+            </div>
             <div class="p-btn" :class="drawing?'is-drawing':''" @click="drawWithLogin()" :disabled="drawing">
               <div>开始绘画</div>
             </div>
@@ -164,7 +166,8 @@ export default {
       qrCode: "",
       status_desc: "未扫码",
       token: "",
-      queueSize: 1
+      queueSize: 1,
+      messages: ""
     }
   },
   computed:{
@@ -347,17 +350,13 @@ export default {
           return;
         }
         this.drawing = true;
-        this.progress = "initial";
+        this.progress = " ";
         this.subImages = [];
-        let keywords = "";
+        let keywords="", paras="", name="";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
-          return keywords;
-        });
-        let paras = "";
-        this.selectList.map(e => {
           paras = paras + e.para;
-          return paras;
+          name = (name ? name+",": name) + e.name;
         });
         axios({
           method: 'post',
@@ -366,14 +365,23 @@ export default {
             base64: this.imageSrc,
             prompt: this.inputDesc,
             keyWord: keywords,
-            sizePara: paras
+            sizePara: paras,
+            state: name
           }
         }).then((res) => {
           if (res.data.code == 1) {
+            this.messages = "";
             this.queueSize = res.data.properties.queueSize;
             const taskId = res.data.result;
             this.updateApp(this.token,taskId, keywords, paras);
             this.getImage(taskId);
+          } else if(res.data.code == 24){
+            const riskTips = JSON.parse(res.data.properties.bannedWord).riskTips;
+            const riskWords = JSON.parse(res.data.properties.bannedWord).riskWords;
+            this.messages = riskTips + " "+ riskWords;
+            this.drawing = false;
+          } else {
+            this.messages = res.data.description;
           }
         }).catch(err => {
           console.log(err);
