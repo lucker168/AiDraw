@@ -328,7 +328,7 @@ export default {
           alert(res);
       });
     },
-    updateApp(token, taskId, keywords, paras) {
+    updateApp(token, taskId, keywords, paras, dtls) {
       axios({
         method: 'post',
         url: this.appUrl + '/api/imgTask/submit',
@@ -336,7 +336,8 @@ export default {
           prompt: this.inputDesc,
           task_id: taskId,
           keyWord: keywords,
-          size_param: paras
+          size_param: paras,
+          dtls: dtls
         },
         headers: {
           'Authorization': "bearer "+token, // 设置Authorization头属性
@@ -352,11 +353,12 @@ export default {
         this.drawing = true;
         this.progress = " ";
         this.subImages = [];
-        let keywords="", paras="", name="";
+        let keywords="", paras="", name="",dtls="";
         this.selectList.map(e => {
           keywords = keywords + e.keyword;
           paras = paras + e.para;
           name = (name ? name+",": name) + e.name;
+          dtls = (dtls ? dtls+",": dtls) + e.dtls;
         });
         axios({
           method: 'post',
@@ -373,7 +375,7 @@ export default {
             this.messages = "";
             this.queueSize = res.data.properties.queueSize;
             const taskId = res.data.result;
-            this.updateApp(this.token,taskId, keywords, paras);
+            this.updateApp(this.token,taskId, keywords, paras, dtls);
             this.getImage(taskId);
           } else if(res.data.code == 24){
             const riskTips = JSON.parse(res.data.properties.bannedWord).riskTips;
