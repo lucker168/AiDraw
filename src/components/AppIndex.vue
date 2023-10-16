@@ -167,16 +167,18 @@ export default {
       status_desc: "未扫码",
       token: "",
       queueSize: 1,
-      messages: ""
+      messages: "",
+      leftTime: ""
     }
   },
   computed:{
       processStatus() {
          switch(this.progress) {
-            case "0%":   return "队列等待中。。当前为第 "+this.queueSize+" 个，预计需要 "+ this.queueSize*2+" 分钟";
+            case "0%":   return "队列等待中。。当前为第 "+this.queueSize+" 个，预计需要 "+ this.leftTime;
             case "100%": return "绘图成功，图片下载中。。"+ this.downLoadPer +"%";
             case "": return "任务超时，请稍后再试。。";
             case "initial": return "点击按钮，上传图片";
+            case "start": return "任务处理中。。";
             default: return "绘画生成中。。" + this.progress;
          }
       }
@@ -193,17 +195,31 @@ export default {
         if (this.selWordNm) {
           this.isDisabled = true;
           this.showTip = true;
-          await axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
+          // await axios.get('/mj/data/getWordInfo?name=' + this.selWordNm).then(
+            await axios.get(this.appUrl+'/api/keywords/desc?keyword=' + this.selWordNm).then(
             res => {
               if (res.data.result) {
                 const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = res.data.result;
-                const firstDiv = tempDiv.querySelector('div');
-                firstDiv.removeAttribute('style');
+                // const firstDiv = tempDiv.querySelector('div');
+                // firstDiv.removeAttribute('style');
+                const imgList = res.data.result.img_list;
+                let index = 0;
+                const image = document.createElement('img');
+                tempDiv.appendChild(image);
+                const textNode = document.createTextNode(res.data.result.desc);
+                tempDiv.appendChild(textNode);
+                image.src = imgList[index];
+                image.alt = 'image' + index;
                 this.blogContext = tempDiv.innerHTML;
+                setInterval(()=>{
+                  index = index === imgList.length - 1 ? 0 : index + 1;
+                  image.src = imgList[index];
+                  image.alt = 'image' + index;
+                  this.blogContext = tempDiv.innerHTML;
+                }, 3000);
                 this.isDisabled = false;
               } else {
-                this.blogContext = "没找到对应的文件";
+                this.blogContext = "没找到对应的描述！";
               }
             });
         } else {
@@ -276,7 +292,6 @@ export default {
       console.log('event 编码：', event);
         const file = event.target.files[0];
         const reader = new FileReader();
-
         reader.onload = (e) => {
           this.imgUrl = e.target.result;
           this.imageSrc = e.target.result;
@@ -351,7 +366,7 @@ export default {
           return;
         }
         this.drawing = true;
-        this.progress = " ";
+        this.progress = "start";
         this.subImages = [];
         let keywords="", paras="", name="",dtls="";
         this.selectList.map(e => {
@@ -373,7 +388,9 @@ export default {
         }).then((res) => {
           if (res.data.code == 1) {
             this.messages = "";
-            this.queueSize = res.data.properties.queueSize;
+            const totolSize = res.data.properties.queueSize;
+            const coreSize = res.data.properties.coreSize;
+            this.queueSize = totolSize > coreSize ? Math.floor(totolSize / coreSize) : 1;
             const taskId = res.data.result;
             this.updateApp(this.token,taskId, keywords, paras, dtls);
             this.getImage(taskId);
@@ -398,6 +415,7 @@ export default {
     },
     getImage(taskId) {
       this.taskId = taskId;
+      let time = this.queueSize*120;
       const interval = setInterval(() => {
         axios.get(`/mj/task/${taskId}/fetch`)
           .then((res) => {
@@ -415,6 +433,14 @@ export default {
             this.drawing = false;
           });
       }, this.interval);
+      const timer = setInterval(() => {
+        if (time > 0) {
+          this.leftTime = this.countDown(time);
+          time--;
+        } else {
+          clearInterval(timer);
+        }
+      }, 1000);
     },
     downLoadPic(taskId) {
       this.downLoadPer = 0;
@@ -450,11 +476,17 @@ export default {
     },
     openImageInNewTab(imageUrl,id) {
       this.uBtn = id;
-      // localStorage.setItem("imgUrl",this.imgUrl);
-      // localStorage.setItem("btnId",id);
-      // window.open("/new-page", '_blank');
       this.imgUrl = imageUrl;
-    }
+    },
+    countDown(time) {
+      const hours = Math.floor(time / 3600);
+      const minutes = Math.floor((time % 3600) / 60);
+      const remainingSeconds = time % 60;
+      const hoursStr = hours > 0 ? `${hours} 小时` : '';
+      const minutesStr = minutes > 0 ? `${minutes} 分` : '';
+      const secondsStr = remainingSeconds > 0 ? `${remainingSeconds} 秒` : '';
+      return `${hoursStr}${minutesStr}${secondsStr}`;
+    } 
   },
   mounted() {
     this.loadConfig();
